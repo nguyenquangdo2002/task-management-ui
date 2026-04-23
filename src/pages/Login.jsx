@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import axiosClient from '../api/axiosClient';
 
@@ -18,30 +18,17 @@ export default function Login() {
         }
     };
 
-    const handleGoogleLogin = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
+    <GoogleLogin
+        onSuccess={async (credentialResponse) => {
             try {
-                // Lấy id_token từ Google
-                const res = await fetch(
-                    `https://www.googleapis.com/oauth2/v3/userinfo`,
-                    { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
-                );
-                const profile = await res.json();
-
-                // Gửi access_token lên backend để verify
-                const { data } = await axiosClient.post('/auth/google', {
-                    idToken: tokenResponse.access_token
-                });
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('username', data.username);
-                localStorage.setItem('role', data.role);
+                await googleLogin(credentialResponse.credential);
                 window.location.href = '/tasks';
             } catch {
                 setError('Google login failed!');
             }
-        },
-        onError: () => setError('Google login failed!'),
-    });
+        }}
+        onError={() => setError('Google login failed!')}
+    />
 
     return (
         <div style={{ maxWidth: 400, margin: '100px auto', padding: 24 }}>
