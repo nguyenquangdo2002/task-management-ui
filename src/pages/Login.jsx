@@ -1,47 +1,88 @@
 import { useState } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
+import axiosClient from '../api/axiosClient';
 
 export default function Login() {
-    const { login } = useAuth();
+    const { login, googleLogin } = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         try {
             await login(username, password);
             window.location.href = '/tasks';
         } catch {
-            setError('Sai username hoặc password!');
+            setError('Invalid username or password!');
         }
     };
 
+    const handleGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                // Lấy id_token từ Google
+                const res = await fetch(
+                    `https://www.googleapis.com/oauth2/v3/userinfo`,
+                    { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
+                );
+                const profile = await res.json();
+
+                // Gửi access_token lên backend để verify
+                const { data } = await axiosClient.post('/auth/google', {
+                    idToken: tokenResponse.access_token
+                });
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('username', data.username);
+                localStorage.setItem('role', data.role);
+                window.location.href = '/tasks';
+            } catch {
+                setError('Google login failed!');
+            }
+        },
+        onError: () => setError('Google login failed!'),
+    });
+
     return (
         <div style={{ maxWidth: 400, margin: '100px auto', padding: 24 }}>
-            <h2>Đăng nhập</h2>
+            <h2>Login</h2>
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            <div>
-                <input
-                    placeholder="Username"
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    style={{ display: 'block', width: '100%', marginBottom: 12, padding: 8 }}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    style={{ display: 'block', width: '100%', marginBottom: 12, padding: 8 }}
-                />
-                <button
-                    onClick={handleSubmit}
-                    style={{ width: '100%', padding: 10, background: '#1890ff', color: 'white', border: 'none', cursor: 'pointer' }}
-                >
-                    Đăng nhập
-                </button>
-            </div>
+
+            <input
+                placeholder="Username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                style={{ display: 'block', width: '100%', marginBottom: 12, padding: 8 }}
+            />
+            <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                style={{ display: 'block', width: '100%', marginBottom: 12, padding: 8 }}
+            />
+            <button
+                onClick={handleSubmit}
+                style={{ width: '100%', padding: 10, background: '#1890ff', color: 'white', border: 'none', cursor: 'pointer', marginBottom: 12 }}
+            >
+                Login
+            </button>
+
+            {/* Divider */}
+            <div style={{ textAlign: 'center', color: '#aaa', marginBottom: 12 }}>— or —</div>
+
+            {/* Google Login Button */}
+            <button
+                onClick={() => handleGoogleLogin()}
+                style={{
+                    width: '100%', padding: 10, background: 'white', color: '#444',
+                    border: '1px solid #ddd', cursor: 'pointer', borderRadius: 4,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+                }}
+            >
+                <img src="https://www.google.com/favicon.ico" width={18} height={18} />
+                Continue with Google
+            </button>
         </div>
     );
 }

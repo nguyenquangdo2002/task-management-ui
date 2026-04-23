@@ -26,11 +26,27 @@ export function AuthProvider({ children }) {
         setUser(null);
     };
 
+
+
+    const googleLogin = async (idToken) => {
+        const { data } = await axiosClient.post('/auth/google', { idToken });
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        localStorage.setItem('role', data.role);
+        setUser(data);
+    };
+
+    // Nhớ thêm googleLogin vào value của Provider
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, googleLogin, logout }}>
             {children}
         </AuthContext.Provider>
     );
+    // return (
+    //     <AuthContext.Provider value={{ user, login, logout }}>
+    //         {children}
+    //     </AuthContext.Provider>
+    // );
 }
 
 export function useAuth() {
