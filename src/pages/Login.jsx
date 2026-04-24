@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
-import axiosClient from '../api/axiosClient';
 
 export default function Login() {
     const { login, googleLogin } = useAuth();
@@ -17,18 +16,6 @@ export default function Login() {
             setError('Invalid username or password!');
         }
     };
-
-    <GoogleLogin
-        onSuccess={async (credentialResponse) => {
-            try {
-                await googleLogin(credentialResponse.credential);
-                window.location.href = '/tasks';
-            } catch {
-                setError('Google login failed!');
-            }
-        }}
-        onError={() => setError('Google login failed!')}
-    />
 
     return (
         <div style={{ maxWidth: 400, margin: '100px auto', padding: 24 }}>
@@ -59,17 +46,17 @@ export default function Login() {
             <div style={{ textAlign: 'center', color: '#aaa', marginBottom: 12 }}>— or —</div>
 
             {/* Google Login Button */}
-            <button
-                onClick={() => handleGoogleLogin()}
-                style={{
-                    width: '100%', padding: 10, background: 'white', color: '#444',
-                    border: '1px solid #ddd', cursor: 'pointer', borderRadius: 4,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+            <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                    try {
+                        await googleLogin(credentialResponse.credential);
+                        window.location.href = '/tasks';
+                    } catch {
+                        setError('Google login failed!');
+                    }
                 }}
-            >
-                <img src="https://www.google.com/favicon.ico" width={18} height={18} />
-                Continue with Google
-            </button>
+                onError={() => setError('Google login failed!')}
+            />
         </div>
     );
 }
