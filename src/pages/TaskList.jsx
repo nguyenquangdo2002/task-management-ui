@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosClient from '../api/axiosClient';
+import NotificationBell from '../components/NotificationBell';
 
 export default function TaskList() {
     const { user, logout } = useAuth();
@@ -31,9 +32,17 @@ export default function TaskList() {
         <div style={{ maxWidth: 800, margin: '40px auto', padding: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
                 <h2>Task Management</h2>
-                <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <NotificationBell />
+                    <button 
+                        onClick={() => window.location.href = '/chat'}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}
+                        title="Chat"
+                    >
+                        💬
+                    </button>
                     <span>Xin chào, {user?.username}</span>
-                    <button onClick={logout} style={{ marginLeft: 12 }}>Đăng xuất</button>
+                    <button onClick={logout}>Đăng xuất</button>
                 </div>
             </div>
 

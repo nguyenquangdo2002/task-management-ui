@@ -14,7 +14,12 @@ export default function CreateEditTask() {
     });
     const [error, setError] = useState('');
 
+    const [users, setUsers] = useState([]);
+
     useEffect(() => {
+        // Fetch users for assignment dropdown
+        axiosClient.get('/users').then(({ data }) => setUsers(data)).catch(() => {});
+
         if (isEdit) {
             axiosClient.get(`/tasks/${id}`).then(({ data }) => {
                 setForm({
@@ -26,7 +31,7 @@ export default function CreateEditTask() {
                 });
             });
         }
-    }, [id]);
+    }, [id, isEdit]);
 
     const handleSubmit = async () => {
         try {
@@ -87,6 +92,19 @@ export default function CreateEditTask() {
                     <option value="Done">Done</option>
                 </select>
             )}
+
+            <select
+                value={form.assignedToId}
+                onChange={e => setForm({ ...form, assignedToId: e.target.value })}
+                style={{ display: 'block', width: '100%', marginBottom: 12, padding: 8 }}
+            >
+                <option value="">-- Chọn người nhận task --</option>
+                {users.map(u => (
+                    <option key={u.id} value={u.id}>
+                        {u.username}
+                    </option>
+                ))}
+            </select>
 
             <div style={{ display: 'flex', gap: 8 }}>
                 <button

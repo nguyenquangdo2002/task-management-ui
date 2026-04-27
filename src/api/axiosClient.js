@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// const axiosClient = axios.create({
-//     baseURL: 'http://localhost:5284/api',
-// });
 const axiosClient = axios.create({
-    baseURL: 'https://learningnettaskmanagement-production.up.railway.app/api',
+    baseURL: 'http://localhost:5284/api',
 });
+// const axiosClient = axios.create({
+//     baseURL: 'https://learningnettaskmanagement-production.up.railway.app/api',
+// });
 
 
 axiosClient.interceptors.request.use(config => {
