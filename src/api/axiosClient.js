@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-const axiosClient = axios.create({
-    baseURL: 'http://localhost:5284/api',
-});
-// const axiosClient = axios.create({
-//     baseURL: 'https://learningnettaskmanagement-production.up.railway.app/api',
-// });
+const defaultApiUrl = import.meta.env.DEV
+    ? 'http://localhost:5284/api'
+    : 'https://learningnettaskmanagement-production.up.railway.app/api';
 
+const axiosClient = axios.create({
+    baseURL: import.meta.env.VITE_API_URL || defaultApiUrl,
+});
 
 axiosClient.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
